@@ -22,9 +22,11 @@ package org.jennings.post2file;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,8 +53,17 @@ public class rcvline extends HttpServlet {
         
         try (PrintWriter out = response.getWriter()) {
             String writeFolder = System.getenv("POST2FILE_WRITE_FOLDER");
+            
             if (writeFolder == null) {
-                String msg = "POST2FILE_WRITE_FOLDER environment variable must be set";
+                // Read from config.properties
+                InputStream input = getClass().getResourceAsStream("/config.properties");
+                Properties props = new Properties();
+                props.load(input);    
+                writeFolder = props.getProperty("POST2FILE_WRITE_FOLDER");
+            }
+            
+            if (writeFolder == null) {                
+                String msg = "POST2FILE_WRITE_FOLDER environment variable or config must be set";
                 System.err.println(msg);
                 out.println(msg);
             } else {

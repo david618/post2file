@@ -21,11 +21,13 @@ package org.jennings.post2file;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Properties;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -69,6 +71,15 @@ public class linecnts extends HttpServlet {
 
         try (PrintWriter out = response.getWriter()) {
             String writeFolder = System.getenv("POST2FILE_WRITE_FOLDER");
+
+            if (writeFolder == null) {
+                // Read from config.properties
+                InputStream input = getClass().getResourceAsStream("/config.properties");
+                Properties props = new Properties();
+                props.load(input);    
+                writeFolder = props.getProperty("POST2FILE_WRITE_FOLDER");
+            }
+
             if (writeFolder == null) {
                 String msg = "POST2FILE_WRITE_FOLDER environment variable must be set";
                 System.err.println(msg);
